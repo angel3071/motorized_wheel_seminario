@@ -2,6 +2,10 @@
 
 \chapter{Desarrollo e implementaci\'on} % Main chapter title
 
+\colorlet{mygreen}{green!80!black}
+\colorlet{myblue}{blue!80!black}
+\colorlet{myred}{red!80!black}
+
 \label{Chapter4} % For referencing the chapter elsewhere, use \ref{Chapter1} 
 
 %----------------------------------------------------------------------------------------
@@ -34,11 +38,18 @@ procedimiento es detallada a lo largo de esta secci\'on.
 
 \subsection{Joystick de interfaz}
 \begin{figure}[th]
-    \centering
-    \includegraphics[width=.4\textwidth]{Figures/joystick.jpg}
-    \decoRule
-    \caption{Interfaz de usuario incrustada en reposabrazos}
-    \label{fig:joy}
+\centering
+\begin{minipage}{.5\textwidth}
+  \centering
+  \includegraphics[width=.7\linewidth]{Figures/wheel_lateral.png}
+  \captionof{figure}{Vista lateral de silla}
+\end{minipage}%
+\begin{minipage}{.5\textwidth}
+  \centering
+  \includegraphics[width=.7\linewidth]{Figures/joystick.jpg}
+  \captionof{figure}{Interfaz de usuario incrustada en reposabrazos}
+  \label{fig:joy}
+\end{minipage}
 \end{figure}
 
 Este dispositivo, tiene una gran versatilidad, dada su construcci\'on y que, de
@@ -172,5 +183,134 @@ figura \ref{fig:components}.
 
 En la categor\'ia de software, como parte de la propuesta de soluci\'on implica
 fabricar una silla de un costo accesible, se optar\'a por el uso de
-tecnolog\'ias de uso libre as\'i como de desarrollo hecho a la medida.
+tecnolog\'ias de uso libre as\'i como de desarrollo hecho a la medida.\\
+
+\begin{figure}[th]
+    \centering
+\begin{tikzpicture}[
+std/.style={
+  draw,
+  text width=2.5cm,
+  align=center,
+  font=\strut\sffamily
+  },
+rnd/.style={
+  draw=#1,
+  rounded corners=8pt,
+  line width=1pt,
+  align=center,
+  text width=3cm,
+  minimum height=2cm,
+  font=\strut\sffamily
+  },
+vac/.style={
+  text width=2.5cm,
+  align=center,
+  font=\strut\sffamily
+  },
+ar/.style={
+  ->,
+  >=latex
+  },
+node distance=0.5cm and 3cm    
+]
+%The nodes for the left
+\node[std] (va)
+  {Sensores ultras\'onicos};
+\node[std,below=of va] (fs)
+  {Giroscopio};
+\node[std,below=of fs] (vs)
+  {Aceler\'ometro};
+\node[std,below=of vs] (cv)
+  {Sensores de presi\'on};
+\node[std,below= 1cm of cv] (fr)
+  {Entrada de joystick};
+% \node[std,below=of fr] (ac)
+%   {};
+\node[std,below=of fr] (op)
+  {Nivel de bater\'ia};
+
+%The nodes for the center
+\node[rnd,right=of va,yshift=-12.5pt] (aer)
+  {Adquisici\'on de entradas};
+\node[rnd=myblue,below=of aer] (cdm)
+    {M\'odulo de control \textsc{PID}};
+\node[rnd=myred,below=of cdm] (vcm)
+  {Procesamiento de la salida};
+% \node[rnd=mygreen,below=of vcm] (hvac)
+%   {\textsc{hvac} Module};
+
+%The nodes for the right
+\node[vac,right=1cm of cdm] (occ)
+  {Output $CO_{2}$ Concentration};
+\node[vac,right=1cm of vcm] (the)
+  {Actuadores};
+% \node[vac,right=1cm of hvac] (col)
+%   {Compressor Load};
+
+%The dashed fitting node
+\node[draw,dashed,inner sep=8pt,fit={(va) (cv)}]
+  (fit) {};
+
+% Some auxiliary coordinates for the arrows
+\coordinate (aux1) at ( $ (va.east|-aer.west)!0.25!(aer.west) $ );
+\coordinate (aux2) at ( $ (va.east|-aer.west)!0.50!(aer.west) $ );
+\coordinate (aux3) at ( $ (va.east|-aer.west)!0.75!(aer.west) $ );
+
+%The arrows from left to center
+\draw[dashed,ar]
+  (fit.east|-aer) -- (aer);  
+\foreach \Nodo in {fs,vs,cv}
+{
+  \draw[ar,myred]
+    ([yshift=5pt]\Nodo.east) -- ([yshift=5pt]aux3|-\Nodo.east) |- (vcm);  
+}
+% \foreach \Nodo in {fs,vs,fr}
+% {
+%   \draw[ar,mygreen]
+%     ([yshift=-5pt]\Nodo.east) -- ([yshift=-5pt]aux2|-\Nodo.east) |- (hvac);  
+% }
+\foreach \Nodo in {op}
+{
+  \draw[ar,myblue]
+    (\Nodo.east) -- (aux1|-\Nodo.east) |- (aer);  
+}
+\draw[ar,myblue]
+  ([yshift=5pt]fr.east) -- ([yshift=5pt]aux1|-fr.east) |- (cdm);  
+\draw[myblue]
+  ([yshift=-5pt]cv.east) -- ([yshift=-5pt]aux1|-cv.east);  
+
+%The arrows from center to right
+\foreach \Ori/\Dest in {cdm/occ,vcm/the}
+{
+  \draw[ar]
+    (\Ori.east|-\Dest) -- (\Dest);  
+}
+
+\foreach \Ori/\Dest in {aer/cdm,cdm/vcm}
+{
+  \draw[ar]
+    (\Ori.south) -- (\Dest);  
+}
+  % \draw[ar]
+  %   (aer.east|-cdm) -- (cdm);  
+
+\end{tikzpicture}
+    \caption{Componentes de software}
+    \label{fig:software}
+\end{figure}
+
+Las funciones o m\'odulos de software ser\'an los siguientes:
+\begin{itemize}
+    \item M\'odulo de adquisici\'on de datos
+    \item Algoritmo de control
+    \item Entrega de resultados
+\end{itemize}
+
+Dichas funciones ser\'an ejecutadas exclusivamente en dos componentes de
+hardware; arduino y raspberry y de manera m\'as espec\'ifica en el primero se
+obtendr\'an todas las entradas del sistema, al mismo modo que se entregar\'an
+las salidas a los actuadores (motores), y en el segundo se efectuar\'a todo el
+procesamiento de la informaci\'on, esto mediante un modelo de control
+\textbf{PID}.
 
