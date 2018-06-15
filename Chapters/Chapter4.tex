@@ -241,8 +241,8 @@ node distance=0.5cm and 3cm
 %   {\textsc{hvac} Module};
 
 %The nodes for the right
-\node[vac,right=1cm of cdm] (occ)
-  {Output $CO_{2}$ Concentration};
+% \node[vac,right=1cm of cdm] (occ)
+%   {Output $CO_{2}$ Concentration};
 \node[vac,right=1cm of vcm] (the)
   {Actuadores};
 % \node[vac,right=1cm of hvac] (col)
@@ -281,7 +281,7 @@ node distance=0.5cm and 3cm
   ([yshift=-5pt]cv.east) -- ([yshift=-5pt]aux1|-cv.east);  
 
 %The arrows from center to right
-\foreach \Ori/\Dest in {cdm/occ,vcm/the}
+\foreach \Ori/\Dest in {vcm/the}
 {
   \draw[ar]
     (\Ori.east|-\Dest) -- (\Dest);  
@@ -292,7 +292,7 @@ node distance=0.5cm and 3cm
   \draw[ar]
     (\Ori.south) -- (\Dest);  
 }
-dificultad \draw[ar]
+% dificultad \draw[ar]
   %   (aer.east|-cdm) -- (cdm);  
 
 \end{tikzpicture}
